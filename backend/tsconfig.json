@@ -1,0 +1,18 @@
+// Th compilerOptions property is used to control how TypeScript compiles my code.
+// This file is used to configure the TypeScript compiler.
+// The compilerOptions property is used to specify the compiler options.
+// "target": "es2015": This option tells TypeScript to compile your code to a version of JavaScript that is compatible with ECMAScript 2015 (also known as ES6). It ensures that the resulting JavaScript code will work in modern environments.
+// "outDir": "./build": This option specifies the folder where the compiled JavaScript files will be saved. In this case, it's set to a folder named "build". After TypeScript compiles your code, the resulting JavaScript files will be placed in that folder.
+// "strict": true: When this option is set to true, TypeScript performs strict type checking and enforces additional rules to catch potential errors in your code. It helps ensure that your code is more reliable and less prone to mistakes.
+//"module": "commonjs": This option determines the format used for module loading in your compiled JavaScript code. It specifies the CommonJS module system, which is commonly used in Node.js and many JavaScript projects. It allows you to use require to import modules.
+//"esModuleInterop": true: This option enables compatibility between different module systems, specifically between CommonJS and ECMAScript (ES) modules. It allows you to use import syntax alongside require in your TypeScript code, making it easier to work with modules from different systems.
+
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "outDir": "./build",
+    "strict": true,
+    "module": "commonjs",
+    "esModuleInterop": true
+  }
+}
