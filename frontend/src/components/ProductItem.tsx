@@ -2,8 +2,14 @@ import type { Product } from "../types/Products";
 import { Link } from "react-router-dom";
 import { Card, Button } from "react-bootstrap";
 import Rating from "./Ratings";
+import { Store } from "../store";
+import { useContext } from "react";
 
 function ProductItem({ product }: { product: Product }) {
+  const { state, dispatch: ctxDispatch } = useContext(Store);
+  const {
+    cart: { cartItems },
+  } = state;
   return (
     <Card>
       <Link to={`/product/${product.slug}`}>
