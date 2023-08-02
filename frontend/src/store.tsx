@@ -1,6 +1,6 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import React from "react";
+import React, { useMemo, useReducer } from "react";
 import type { Cart, CartItem } from "./types/Carts";
 
 //This line declares a TypeScript type AppState, which represents the SHAPE OF THE APPLICATION STATE. It defines an object with a property mode of type string. The AppState type will be used to ensure that the state object always follows this structure.
@@ -47,7 +47,8 @@ const initialState: AppState = {
 //type: "CART_ADD_ITEM"; payload: CartItem This represents an action of type "CART_ADD_ITEM". When this action is dispatched, it indicates that an item should be added to the shopping cart. It includes a payload property, which is of type CartItem, to carry the information of the item to be added.In TypeScript, the Action type is used to ensure that only valid actions can be dispatched, and it provides type safety for action creators and reducers. For example, when dispatching an action of type "SWITCH_MODE", it is guaranteed that there will be no payload, and when dispatching an action of type "CART_ADD_ITEM", it is required to provide a valid CartItem object as the payload.
 type Action =
   | { type: "SWITCH_MODE" }
-  | { type: "CART_ADD_ITEM"; payload: CartItem };
+  | { type: "CART_ADD_ITEM"; payload: CartItem }
+  |  { type: "CART_REMOVE_ITEM"; payload: CartItem };
 
 // The main purpose of `useReducer` is to manage state based on actions. It takes two arguments" a reducer and an initial state.
 // Reducer function: The reducer function takes two arguments, the current state and an action, and returns the new state based on the action. The action is an object that describes what kind of state change you want to make. The reducer function is responsible for updating the state based on the action's type.
@@ -76,6 +77,18 @@ function reducer(state: AppState, action: Action): AppState {
       localStorage.setItem("cartItems", JSON.stringify(cartItems));
       //This line returns a new state object with the updated cartItems inside the cart property. It uses the spread operator (...) to create a shallow copy of the original state object and only modifies the cartItems property inside the cart.
       return { ...state, cart: { ...state.cart, cartItems } };
+
+    case "CART_REMOVE_ITEM":
+      const cartItemsAfterRemove = state.cart.cartItems.filter(
+        (item: CartItem) => item._id !== action.payload._id
+      );
+      localStorage.setItem("cartItems", JSON.stringify(cartItemsAfterRemove));
+      return {
+        ...state,
+        cart: { ...state.cart, cartItems: cartItemsAfterRemove },
+      };
+
+      
     default:
       return state;
   }
@@ -92,12 +105,25 @@ const Store = React.createContext({
 
 //In summary, the StoreProvider component sets up the application's state management using the useReducer hook. It then provides the state and dispatch function to all its child components using the Store.Provider. This allows the child components to access and update the state of the application.
 //The dispatch function allows you to trigger actions such as "SWITCH_MODE" or "CART_ADD_ITEM", and the reducer function will take care of updating the state accordingly based on the action.
-function StoreProvider(props: React.PropsWithChildren<{}>) {
-  const [state, dispatch] = React.useReducer<React.Reducer<AppState, Action>>(
-    reducer,
-    initialState
-  );
-  return <Store.Provider value={{ state, dispatch }} {...props} />;
+//The state object allows you to access the current state of the application. For example, you can access the current mode of the application using state.mode, or you can access the current shopping cart using state.cart.
+
+// function StoreProvider(props: React.PropsWithChildren<{}>) {
+//   const [state, dispatch] = React.useReducer<React.Reducer<AppState, Action>>(
+//     reducer,
+//     initialState
+//   );
+//   return <Store.Provider value={{ state, dispatch }} {...props} />;
+// }
+
+// Create the StoreProvider component
+function StoreProvider(props:React.PropsWithChildren<{}> ) {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Memoize the context value using useMemo
+  const storeValue = useMemo(() => ({ state, dispatch }), [state, dispatch]);
+
+  // Render the Store.Provider with the memoized value
+  return <Store.Provider value={storeValue} {...props} />;
 }
 
 export { Store, StoreProvider };
