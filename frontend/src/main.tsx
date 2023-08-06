@@ -19,6 +19,9 @@ import ProductPage from "./pages/ProductPage.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import CartPage from "./pages/CartPage.tsx";
+import SigninPage from "./pages/SigninPage.tsx";
+import SignupPage from "./pages/SignupPage.tsx";
+import ShippingAddressPage from "./pages/ShippingAddressPage.tsx";
 
 //const router = createBrowserRouter(...): Creates a router instance using the createBrowserRouter function from react-router-dom.
 //The router is responsible for handling the routing logic in the application.
@@ -32,8 +35,9 @@ const router = createBrowserRouter(
       <Route index={true} element={<HomePage />} />
       <Route path="product/:slug" element={<ProductPage />} />
       <Route path="/cart" element={<CartPage />} />
-      {/* <Route path="dashboard" element={<Dashboard />} /> */}
-      {/* ... etc. */}
+      <Route path="/signin" element={<SigninPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/shipping" element={<ShippingAddressPage />} />
     </Route>
   )
 );

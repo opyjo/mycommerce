@@ -1,45 +1,41 @@
-
-import { useContext } from "react"
-import { Row, Col, ListGroup, Button, Card } from "react-bootstrap"
-import { Helmet } from "react-helmet-async"
-import { useNavigate, Link } from "react-router-dom"
-import { toast } from "react-toastify"
-import MessageBox from "../components/MessageBox"
-import { Store } from "../store"
-import { CartItem } from "../types/Carts"
+import { useContext } from "react";
+import { Row, Col, ListGroup, Button, Card } from "react-bootstrap";
+import { Helmet } from "react-helmet-async";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import MessageBox from "../components/MessageBox";
+import { Store } from "../store";
+import { CartItem } from "../types/Carts";
 
 export default function CartPage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const {
     state: {
       mode,
       cart: { cartItems },
     },
     dispatch,
-  } = useContext(Store)
-
-  console.log(cartItems)
+  } = useContext(Store);
 
   // The below code is changing the quantity of the item in the cart
   const updateCartHandler = (item: CartItem, quantity: number) => {
     if (item.countInStock < quantity) {
-      toast.warn('Sorry. Product is out of stock')
-      return
+      toast.warn("Sorry. Product is out of stock");
+      return;
     }
     dispatch({
-      type: 'CART_ADD_ITEM',
+      type: "CART_ADD_ITEM",
       payload: { ...item, quantity },
-    })
-  }
+    });
+  };
 
+  //The purpose of this function is to ensure that unauthenticated users are redirected to the sign-in page before proceeding with the checkout. The redirect query parameter is a common technique used to store the original route or page the user intended to access before being redirected to the sign-in page. After successful sign-in, the user can be redirected back to the original page (in this case, the "shipping" page) to continue the flow seamlessly.
   const checkoutHandler = () => {
-    navigate('/signin?redirect=shipping')
-  }
+    navigate("/signin?redirect=/shipping");
+  };
   const removeItemHandler = (item: CartItem) => {
-    dispatch({ type: 'CART_REMOVE_ITEM', payload: item })
-  }
-
-
+    dispatch({ type: "CART_REMOVE_ITEM", payload: item });
+  };
 
   return (
     <div>
@@ -63,7 +59,8 @@ export default function CartPage() {
                         src={item.image}
                         alt={item.name}
                         className="img-fluid rounded thumbnail"
-                      ></img> <Link to={`/product/${item.slug}`}>{item.name}</Link>
+                      ></img>{" "}
+                      <Link to={`/product/${item.slug}`}>{item.name}</Link>
                     </Col>
                     <Col md={3}>
                       <Button
@@ -74,8 +71,8 @@ export default function CartPage() {
                         disabled={item.quantity === 1}
                       >
                         <i className="fas fa-minus-circle"></i>
-                      </Button>{' '}
-                      <span>{item.quantity}</span>{' '}
+                      </Button>{" "}
+                      <span>{item.quantity}</span>{" "}
                       <Button
                         variant={mode}
                         onClick={() =>
@@ -107,7 +104,7 @@ export default function CartPage() {
               <ListGroup variant="flush">
                 <ListGroup.Item>
                   <h3>
-                    Subtotal ({cartItems.reduce((a, c) => a + c.quantity, 0)}{' '}
+                    Subtotal ({cartItems.reduce((a, c) => a + c.quantity, 0)}{" "}
                     items) : $
                     {cartItems.reduce((a, c) => a + c.price * c.quantity, 0)}
                   </h3>
@@ -130,5 +127,5 @@ export default function CartPage() {
         </Col>
       </Row>
     </div>
-  )
+  );
 }

@@ -1,12 +1,14 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, { useMemo, useReducer } from "react";
-import type { Cart, CartItem } from "./types/Carts";
+import type { Cart, CartItem, ShippingAddress } from "./types/Carts";
+import { UserInfo } from "./types/UserInfo";
 
 //This line declares a TypeScript type AppState, which represents the SHAPE OF THE APPLICATION STATE. It defines an object with a property mode of type string. The AppState type will be used to ensure that the state object always follows this structure.
 type AppState = {
   mode: string;
   cart: Cart;
+  userInfo?: UserInfo;
 };
 
 //This code defines a function called getInitialMode. It checks if the window object is available (to prevent errors during server-side rendering), and if so, it tries to get the "mode" value from the localStorage. If there's a stored mode, it returns that value; otherwise, it checks the preferred color scheme of the user's browser using window.matchMedia and returns "dark" if it matches, otherwise "light". This function is used to SET the initial value of the mode property in the state.
@@ -26,6 +28,9 @@ const getInitialMode = (): string => {
 //the initialState object is used as the starting state for the state management system in the application.
 const initialState: AppState = {
   mode: getInitialMode(),
+  userInfo: localStorage.getItem("userInfo")
+    ? JSON.parse(localStorage.getItem("userInfo")!)
+    : null,
   cart: {
     cartItems: localStorage.getItem("cartItems")
       ? JSON.parse(localStorage.getItem("cartItems")!)
@@ -48,7 +53,10 @@ const initialState: AppState = {
 type Action =
   | { type: "SWITCH_MODE" }
   | { type: "CART_ADD_ITEM"; payload: CartItem }
-  |  { type: "CART_REMOVE_ITEM"; payload: CartItem };
+  | { type: "CART_REMOVE_ITEM"; payload: CartItem }
+  | { type: "USER_SIGNIN"; payload: UserInfo }
+  | { type: "USER_SIGNOUT" }
+  | { type: "SAVE_SHIPPING_ADDRESS"; payload: ShippingAddress };
 
 // The main purpose of `useReducer` is to manage state based on actions. It takes two arguments" a reducer and an initial state.
 // Reducer function: The reducer function takes two arguments, the current state and an action, and returns the new state based on the action. The action is an object that describes what kind of state change you want to make. The reducer function is responsible for updating the state based on the action's type.
@@ -88,7 +96,40 @@ function reducer(state: AppState, action: Action): AppState {
         cart: { ...state.cart, cartItems: cartItemsAfterRemove },
       };
 
-      
+    case "USER_SIGNIN":
+      return { ...state, userInfo: action.payload };
+
+    case "USER_SIGNOUT":
+      return {
+        mode: window?.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light",
+        cart: {
+          cartItems: [],
+          paymentMethod: "PayPal",
+          shippingAddress: {
+            fullName: "",
+            address: "",
+            postalCode: "",
+            city: "",
+            country: "",
+          },
+          itemsPrice: 0,
+          shippingPrice: 0,
+          taxPrice: 0,
+          totalPrice: 0,
+        },
+      };
+
+    case "SAVE_SHIPPING_ADDRESS":
+      return {
+        ...state,
+        cart: {
+          ...state.cart,
+          shippingAddress: action.payload,
+        },
+      };
+
     default:
       return state;
   }
@@ -116,7 +157,7 @@ const Store = React.createContext({
 // }
 
 // Create the StoreProvider component
-function StoreProvider(props:React.PropsWithChildren<{}> ) {
+function StoreProvider(props: React.PropsWithChildren<{}>) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   // Memoize the context value using useMemo
