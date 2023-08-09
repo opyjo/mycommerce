@@ -56,7 +56,9 @@ type Action =
   | { type: "CART_REMOVE_ITEM"; payload: CartItem }
   | { type: "USER_SIGNIN"; payload: UserInfo }
   | { type: "USER_SIGNOUT" }
-  | { type: "SAVE_SHIPPING_ADDRESS"; payload: ShippingAddress };
+  | { type: "SAVE_SHIPPING_ADDRESS"; payload: ShippingAddress }
+  | { type: "SAVE_PAYMENT_METHOD"; payload: string }
+  | { type: "CART_CLEAR" };
 
 // The main purpose of `useReducer` is to manage state based on actions. It takes two arguments" a reducer and an initial state.
 // Reducer function: The reducer function takes two arguments, the current state and an action, and returns the new state based on the action. The action is an object that describes what kind of state change you want to make. The reducer function is responsible for updating the state based on the action's type.
@@ -68,6 +70,7 @@ type Action =
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case "SWITCH_MODE":
+      localStorage.setItem("mode", state.mode === "dark" ? "light" : "dark");
       return { ...state, mode: state.mode === "dark" ? "light" : "dark" };
     case "CART_ADD_ITEM":
       //This line extracts the payload property from the action object and assigns it to the variable newItem. The payload is expected to be an object representing the new item to be added to the cart.
@@ -129,6 +132,15 @@ function reducer(state: AppState, action: Action): AppState {
           shippingAddress: action.payload,
         },
       };
+
+    case "SAVE_PAYMENT_METHOD":
+      return {
+        ...state,
+        cart: { ...state.cart, paymentMethod: action.payload },
+      };
+
+    case "CART_CLEAR":
+      return { ...state, cart: { ...state.cart, cartItems: [] } };
 
     default:
       return state;
